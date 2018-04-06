@@ -27,26 +27,26 @@ def principal(request):
     if request.method == 'POST':
         try:
             nuevapagina = Pagina(url=request.POST['url'])
+            posicion1 = nuevapagina.url.find("http://")
+            if posicion1 == -1:
+                posicion2 = nuevapagina.url.find("https://")
+                if posicion2 == -1:
+                    nuevapagina.url = "https://" + str(nuevapagina.url)
             try:
                 Pagina.objects.get(url=nuevapagina)
                 return HttpResponse('Ya existia en nuestra BD')
-
             except Pagina.DoesNotExist:
                 nuevapagina.save()
                 return HttpResponse("<html><body><h1>URL ORIGINAL y URL ACORTADA: <br> URL ORIGINAL: " +
-                        "<a href='https://" + str(nuevapagina) + "'>"+ str(nuevapagina)+ "</a><br> URL ACORTADA: " +
-                        "<a href='https://" + str(nuevapagina) + "'>"+ str(nuevapagina.id)+ "</a></h1></body></html>")
+                        "<a href='" + str(nuevapagina) + "'>"+ str(nuevapagina)+ "</a><br> URL ACORTADA: " +
+                        "<a href='" + str(nuevapagina) + "'>"+ str(nuevapagina.id)+ "</a></h1></body></html>")
         except KeyError:
                 return HttpResponse("Debe rellenar el formulario")
 
 def redireccion(request, identificador):
-    print("identificador: " + str(identificador))
-    #busco en la base de datos a ver si esta por el identificador
     try:
         redireccion = Pagina.objects.get(id=int(identificador))
-        print("redireccion: " + str(redireccion))
-        return HttpResponse("<html><meta http-equiv="+'refresh'+ " content="+'1'+";url=" + 'https://'
+        return HttpResponse("<html><meta http-equiv="+'refresh'+ " content="+'1'+";url="
                             + str(redireccion) + "/></html>")
     except Pagina.DoesNotExist:
-    #si no esta envio mensaje de error
         return HttpResponse("NO TENEMOS ESE IDENTIFICADOR")
